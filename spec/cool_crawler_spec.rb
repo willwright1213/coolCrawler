@@ -5,7 +5,8 @@ RSpec.describe CoolCrawler do
     expect(CoolCrawler::VERSION).not_to be nil
   end
 
-  it "does something useful" do
-    expect(false).to eq(true)
+  it "after initialization, unvisited links must not be empty" do
+    crawler = CoolCrawler.new('https://www.w3schools.com/tags/tag_a.asp')
+    expect().not_to be nil
   end
 end
