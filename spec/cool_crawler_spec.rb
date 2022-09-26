@@ -6,7 +6,7 @@ RSpec.describe CoolCrawler do
   end
 
   it "after initialization, unvisited links must not be empty" do
-    crawler = CoolCrawler.new('https://www.w3schools.com/tags/tag_a.asp')
-    expect().not_to be nil
+    crawler = CoolCrawler::Crawler.new('https://www.w3schools.com/tags/tag_a.asp')
+    expect(crawler.unvisited.size).not_to be 0
   end
 end
