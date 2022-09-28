@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "nokogiri", "~> 1.13"
   spec.add_dependency "open-uri"
   spec.add_dependency "uri"
+  spec.add_dependency "mechanize"
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
 end
