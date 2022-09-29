@@ -5,8 +5,9 @@ RSpec.describe CoolCrawler do
     expect(CoolCrawler::VERSION).not_to be nil
   end
 
-  it "after initialization, unvisited links must not be empty" do
-    crawler = CoolCrawler::Crawler.new("https://people.scs.carleton.ca/~davidmckenney/fruitgraph/N-0.html", 1, 0.05)
-    expect(crawler.empty?).to be false
+  it "after crawling, all_links should contain " do
+    crawler = CoolCrawler::Crawler.new("https://people.scs.carleton.ca/~davidmckenney/fruitgraph/N-0.html")
+    crawler.start { |node| p node }
+    expect(crawler.all_links.empty?).to be false
   end
 end
