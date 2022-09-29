@@ -22,7 +22,23 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+A simple example of a crawler at work
+
+```ruby
+    crawler = CoolCrawler::Crawler(https://github.com)
+    
+    crawler.start do |node|
+        # the node is a list where list[0] is the current page that the crawler is on
+        # and where list[1] is a list of all the links on this page
+    end
+```
+
+## TO-DO
+
+* Implement method to scan and apply the rules of robots.txt 
+* add a way to limit the number of links in the queue 
+* Sleep period can be specified in the start block, but it would be good to have it supplied as configuration 
+* Test and adapt for concurrency 
 
 ## Development
 
