@@ -3,7 +3,7 @@
 require_relative "lib/coolCrawler/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "cool-crawler"
+  spec.name = "coolCrawler"
   spec.version = CoolCrawler::VERSION
   spec.authors = ["William Wright"]
   spec.email = ["williamwright3@cmail.carleton.ca"]
