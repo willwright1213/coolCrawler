@@ -33,10 +33,14 @@ A simple example of a crawler at work
 
 ## TO-DO
 
+### For version 0.1.x:    
+
 * Implement method to scan and apply the rules of robots.txt 
 * add a way to limit the number of links in the queue 
 * Sleep period can be specified in the start block, but it would be good to have it supplied as configuration 
 * Test and adapt for concurrency 
+
+I will implement pageranking in 0.2.x   
 
 ## Development
 
