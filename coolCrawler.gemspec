@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
   spec.add_development_dependency "rspec", "~> 3.11"
+  spec.add_dependency 'async-http'
   spec.add_dependency "nokogiri", "~> 1.13"
   spec.add_dependency "open-uri"
   spec.add_dependency "uri"
