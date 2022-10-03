@@ -20,14 +20,18 @@ Or install it yourself as:
 
 ## Usage
 
-A simple example of a crawler at work
+
 
 ```ruby
-    crawler = CoolCrawler::Crawler(https://github.com)
+    # create a set of 10 crawlers with a delay of 0.01 seconds between each group of crawl
+    crawler = CoolCrawler::CrawlerServer.new("https://github.com", 10, 0.01)
     
-    crawler.start do |node|
-        # the node is a list where list[0] is the current page that the crawler is on
-        # and where list[1] is a list of all the links on this page
+    # set the callback function. This will be called everytime an individual crawler finishes its crawling. page is current path the crawler is on, links is an array
+    # of all links found
+    crawler.set_callback(Proc.new {|page, links| p page, links})
+
+    # starts the crawl (ends when thare no more page in queue)
+    crawler.run
     end
 ```
 

@@ -6,8 +6,10 @@ RSpec.describe CoolCrawler do
   end
 
   it "after crawling, all_links should contain " do
-    crawler = CoolCrawler::CrawlerServer.new("https://people.scs.carleton.ca/~davidmckenney/fruitgraph/N-0.html", 5, 0.1)
-    crawler.start { |node| p node }
-    expect(crawler.all_links.empty?).to be false
+    crawler = CoolCrawler::CrawlerServer.new("https://people.scs.carleton.ca/~davidmckenney/fruitgraph/N-0.html", 10, 0.01)
+    #crawler.set_callback(Proc.new{|page, links| p page})
+    p crawler.callback
+    crawler.run
+    expect(crawler.sorted_visited.empty?).to be false
   end
 end

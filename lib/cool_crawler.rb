@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require_relative "coolCrawler/version"
-require "Nokogiri"
-require "net/http"
 require 'async'
 require 'async/http/internet'
+require 'async/barrier'
+require 'nokogiri'
+
 # Module Controller
 module CoolCrawler
   class Error < StandardError; end
@@ -17,28 +18,51 @@ module CoolCrawler
       @site = "#{uri.scheme}://#{uri.host}"
       @max_connections = max_connections
       @delay = delay
-      visted[uri.path] = 1
+      visited[uri.path] = 1
       queue << uri.path
     end
 
+    attr_reader :max_connections, :delay, :callback
+
+    def set_callback(proc)
+      @callback=proc
+    end
+
+    def run
+      until queue.empty?
+        send_crawlers
+        sleep(delay)
+      end
+    end
+
+    def after(page, links)
+      callback.call(page, links) unless callback.nil?
+    end
+
     def send_crawlers
-      page_queue = []
-      until queue.empty? || page_queue.size >= max_connections
-        page_queue << queue.pop
+      pages = []
+      until queue.empty? || pages.size >= max_connections
+        pages << queue.pop
       end
       Async do
         internet = Async::HTTP::Internet.new
         barrier = Async::Barrier.new
 
-        page_queue.each do |page|
-          barrier.async do 
-            response = internet.get URI.join(@site, page).to_s
-            p Crawler.new(response.read).gather_links_uri
+        pages.each do |page|
+          barrier.async do
+            response = internet.get URI.join(@site, page)
+            links = Crawler.new(URI.join(@site, page), response.read).gather_links_uri
+            after(page, links)
+            links.each do |link|
+              enqueue(link)
+              add_to_visited(link)
+            end
           end
         end
         barrier.wait
+      ensure
+        internet&.close
       end
-      internet&.close
     end
 
     def queue
@@ -80,17 +104,20 @@ module CoolCrawler
       @response = response
     end
 
-    attr_reader :uri, :website
+    attr_reader :current, :response
 
-    private
-
-    def gather_links_uri(doc)
+    def gather_links_uri
       links = []
       doc = Nokogiri::HTML(response)
       doc.xpath("//a").each do |a|
         next if a["href"].nil?
-        uri_a = URI(a["href"])
-        links << URI.join(@current, uri_a).path if (uri_a.host == @uri.host || uri_a.host.nil?) && uri_a.path
+        uri_a = URI(a["href"].strip.split('#')[0].sub(/\\|(\s+$)/, ""))
+        begin
+          link = URI.join(current, uri_a).path if (uri_a.host == current.host || uri_a.host.nil?) && uri_a.path
+          links << URI.join(current, uri_a).path if (uri_a.host == current.host || uri_a.host.nil?) && uri_a.path
+        rescue
+          # do nothing
+        end
       end
       links
     end
