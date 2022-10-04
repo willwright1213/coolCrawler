@@ -23,6 +23,7 @@ Or install it yourself as:
 
 
 ```ruby
+    require 'cool_crawler'
     # create a set of 10 crawlers with a delay of 0.01 seconds between each group of crawl
     crawler = CoolCrawler::CrawlerServer.new("https://github.com", 10, 0.01)
     
