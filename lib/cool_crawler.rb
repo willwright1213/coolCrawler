@@ -11,10 +11,10 @@ module CoolCrawler
   class Error < StandardError; end
 
   # This is the class that handles the queue and async requests
-  class CrawlerServer
+  class CrawlerPool
 
     def initialize(start, max_connections, delay)
-      uri = URI(start)
+      @uri = URI(start)
       @site = "#{uri.scheme}://#{uri.host}"
       @max_connections = max_connections
       @delay = delay
@@ -22,7 +22,7 @@ module CoolCrawler
       queue << uri.path
     end
 
-    attr_reader :max_connections, :delay, :callback, :site
+    attr_reader :max_connections, :uri, :delay, :callback, :site
 
     def set_callback(proc)
       @callback=proc
@@ -49,7 +49,7 @@ module CoolCrawler
         pages.each do |page|
           barrier.async do
             response = internet.get URI.join(@site, page).to_s
-            links = Crawler.new(URI.join(@site, page), response.read).gather_links_uri
+            links = gather_links_uri(response.read, URI.join(uri, page))
             after(page, links)
             links.each do |link|
               enqueue(link)
@@ -61,6 +61,21 @@ module CoolCrawler
       ensure
         internet&.close
       end
+    end
+
+    def gather_links_uri(body, page)
+      links = []
+      doc = Nokogiri::HTML(body)
+      doc.xpath("//a").each do |a|
+        next if a["href"].nil?
+        uri_a = URI(a["href"].strip.split('#')[0].sub(/\\|(\s+$)/, ""))
+        begin
+          links << URI.join(page, uri_a).path if (uri_a.host == uri.host || uri_a.host.nil?) && uri_a.path
+        rescue
+          # do nothing
+        end
+      end
+      links
     end
 
     def queue
@@ -90,35 +105,5 @@ module CoolCrawler
     def enqueue(path)
       queue << path unless visited.include?(path)
     end
-
-  end
-
-
-  # This is the individual crawler
-  class Crawler
-    include CoolCrawler
-    def initialize(current, response)
-      @current = URI(current)
-      @response = response
-    end
-
-    attr_reader :current, :response
-
-    def gather_links_uri
-      links = []
-      doc = Nokogiri::HTML(response)
-      doc.xpath("//a").each do |a|
-        next if a["href"].nil?
-        uri_a = URI(a["href"].strip.split('#')[0].sub(/\\|(\s+$)/, ""))
-        begin
-          link = URI.join(current, uri_a).path if (uri_a.host == current.host || uri_a.host.nil?) && uri_a.path
-          links << URI.join(current, uri_a).path if (uri_a.host == current.host || uri_a.host.nil?) && uri_a.path
-        rescue
-          # do nothing
-        end
-      end
-      links
-    end
-    
   end
 end
