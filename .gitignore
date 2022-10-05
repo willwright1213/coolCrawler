@@ -11,4 +11,4 @@
 .rspec_status
 
 #the actual gemfile
-.gem
+*.gem

@@ -48,7 +48,7 @@ module CoolCrawler
 
         pages.each do |page|
           barrier.async do
-            response = internet.get URI.join(@site, page)
+            response = internet.get URI.join(@site, page).to_s
             links = Crawler.new(URI.join(@site, page), response.read).gather_links_uri
             after(page, links)
             links.each do |link|
