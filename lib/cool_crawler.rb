@@ -22,7 +22,7 @@ module CoolCrawler
       queue << uri.path
     end
 
-    attr_reader :max_connections, :delay, :callback
+    attr_reader :max_connections, :delay, :callback, :site
 
     def set_callback(proc)
       @callback=proc
@@ -41,9 +41,7 @@ module CoolCrawler
 
     def send_crawlers
       pages = []
-      until queue.empty? || pages.size >= max_connections
-        pages << queue.pop
-      end
+      pages << queue.pop until queue.empty? || pages.size >= max_connections
       Async do
         internet = Async::HTTP::Internet.new
         barrier = Async::Barrier.new
