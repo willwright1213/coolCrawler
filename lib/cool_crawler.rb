@@ -35,8 +35,8 @@ module CoolCrawler
       end
     end
 
-    def after(page, links)
-      callback.call(page, links) unless callback.nil?
+    def after(page, links, body)
+      callback.call(page, links, body) unless callback.nil?
     end
 
     def send_crawlers
@@ -49,8 +49,9 @@ module CoolCrawler
         pages.each do |page|
           barrier.async do
             response = internet.get URI.join(@site, page).to_s
-            links = gather_links_uri(response.read, URI.join(uri, page))
-            after(page, links)
+            body = response.read
+            links = gather_links_uri(body, URI.join(uri, page))
+            after(page, links, body)
             links.each do |link|
               enqueue(link)
               add_to_visited(link)
